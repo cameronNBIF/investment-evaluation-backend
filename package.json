@@ -1,0 +1,32 @@
+{
+  "name": "investment-evaluation-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon --exec ts-node src/index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@azure/storage-blob": "^12.29.1",
+    "@google/generative-ai": "^0.24.1",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "multer": "^2.0.2",
+    "node-fetch": "^3.3.2",
+    "openai": "^6.10.0",
+    "uuid": "^13.0.0",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^24.10.2",
+    "@types/uuid": "^10.0.0",
+    "nodemon": "^3.1.11",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
