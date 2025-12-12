@@ -1,0 +1,128 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# ======================================
+# DEPENDENCIES
+# ======================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp
+.pnp.js
+.pnpm-store/
+
+# ======================================
+# ENVIRONMENT VARIABLES
+# ======================================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.*.local
+
+# ======================================
+# IDE & EDITOR
+# ======================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-*
+.project
+.classpath
+*.launch
+.settings/
+
+# ======================================
+# OS GENERATED FILES
+# ======================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# ======================================
+# LOGS
+# ======================================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# ======================================
+# TESTING & COVERAGE
+# ======================================
+coverage/
+.nyc_output/
+*.lcov
+.istanbul/
+
+# ======================================
+# BUILD OUTPUTS
+# ======================================
+dist/
+build/
+.out/
+.next/
+
+# ======================================
+# DEPLOYMENT
+# ======================================
+.dockerignore
+Dockerfile
+.docker/
+.cache/
+deployments/
+
+# ======================================
+# PACKAGE MANAGER LOCKFILES
+# (Choose based on your package manager)
+# ======================================
+# package-lock.json   # If using npm, consider committing this
+# yarn.lock           # If using yarn, commit this
+# pnpm-lock.yaml      # If using pnpm, commit this
+# bun.lockb           # If using bun, commit this
+
+# ======================================
+# TYPESCRIPT
+# ======================================
+*.tsbuildinfo
+
+# ======================================
+# CERTIFICATES & KEYS
+# ======================================
+*.pem
+*.key
+*.crt
+*.csr
+
+# ======================================
+# DATABASE FILES (if applicable)
+# ======================================
+*.db
+*.sqlite
+*.sqlite3
+dump.rdb
+
+# ======================================
+# TEMPORARY FILES
+# ======================================
+tmp/
+temp/
+*.tmp
+*.temp
+
+# ======================================
+# DEBUGGER FILES
+# ======================================
+node-inspector/
+*.pid
+*.seed
