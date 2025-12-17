@@ -12,7 +12,7 @@ export const IntakeSchema = z.object({
   traction: z.string(),
   revenue: z.string(),
   team_background: z.string(),
-  deck_url: z.string().url()
+  deck_url: z.string().url().optional(),
 });
 
 export type IntakeInput = z.infer<typeof IntakeSchema>;

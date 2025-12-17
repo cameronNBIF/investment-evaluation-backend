@@ -16,6 +16,10 @@ const model = genAI.getGenerativeModel({
 const SYSTEM_PROMPT = `
 You are a venture capital investment scoring assistant.
 
+You are given:
+1. Founder-submitted intake information
+2. A summarized pitch deck
+
 You MUST output JSON in the EXACT format shown below.
 Do NOT change field names.
 Do NOT add or remove fields.
@@ -80,7 +84,7 @@ ONLY OUTPUT JSON.
 `;
 }
 
-export async function scoreDeal(input: IntakeInput): Promise<ScoreOutput> {
+export async function scoreDeal(input: IntakeInput, deckSummary?: string): Promise<ScoreOutput> {
   const result = await model.generateContent([
     { text: SYSTEM_PROMPT },
     {
