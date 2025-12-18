@@ -15,10 +15,7 @@ const model = genAI.getGenerativeModel({
 
 const SYSTEM_PROMPT = `
 You are a venture capital investment scoring assistant.
-
-You are given:
-1. Founder-submitted intake information
-2. A summarized pitch deck
+Evaluate the startup based on the provided **Form Data** and **Pitch Deck Summary**.
 
 You MUST output JSON in the EXACT format shown below.
 Do NOT change field names.
@@ -30,10 +27,10 @@ SCORING RULES:
 - pass = true if overall_score >= 13
 - confidence must be between 0 and 1
 - recommended_next_step must be one of: "no", "follow-up", "diligence"
-- Be conservative if information is missing
+- **Cross-reference the Deck Summary with the Form Data to check for consistency.**
+- Be conservative if information is missing.
 
 OUTPUT FORMAT EXAMPLE (THIS IS A TEMPLATE):
-
 {
   "overall_score": 14,
   "category_scores": {
@@ -57,39 +54,30 @@ NO ADDITIONAL TEXT.
 `;
 
 function buildRepairPrompt(raw: string) {
-  return `
-The previous output did not match the required JSON schema.
-
-Here is the REQUIRED JSON FORMAT:
-{
-  "overall_score": number,
-  "category_scores": {
-    "market": number,
-    "financials": number,
-    "team": number,
-    "product": number
-  },
-  "confidence": number,
-  "summary": string,
-  "key_risks": [string],
-  "recommended_next_step": "no" | "follow-up" | "diligence",
-  "pass": boolean
+  // ... (Keep existing repair logic) ...
+  return `The previous output did not match the required JSON schema... \n${raw}`;
 }
 
-Here is your previous output:
-${raw}
+// UPDATE 1: Accept deckSummary as an optional argument
+export async function scoreDeal(
+  input: IntakeInput, 
+  deckSummary?: string
+): Promise<ScoreOutput> {
+  
+  // UPDATE 2: Construct a richer user prompt
+  const userPrompt = `
+  Analyze this startup submission:
 
-Rewrite the output to EXACTLY match the required format.
-ONLY OUTPUT JSON.
-`;
-}
+  === FORM DATA ===
+  ${JSON.stringify(input, null, 2)}
 
-export async function scoreDeal(input: IntakeInput, deckSummary?: string): Promise<ScoreOutput> {
+  === PITCH DECK SUMMARY ===
+  ${deckSummary ? deckSummary : "No pitch deck provided."}
+  `;
+
   const result = await model.generateContent([
     { text: SYSTEM_PROMPT },
-    {
-      text: `Startup submission:\n${JSON.stringify(input, null, 2)}`
-    }
+    { text: userPrompt }
   ]);
 
   const raw = result.response.text();
@@ -98,14 +86,12 @@ export async function scoreDeal(input: IntakeInput, deckSummary?: string): Promi
   }
 
   try {
-        const parsed = JSON.parse(raw);
-        return ScoreOutputSchema.parse(parsed);
-    } catch {
-        const repair = await model.generateContent(
-            buildRepairPrompt(raw)
-        );
-        const repairedRaw = repair.response.text();
-        const repairedParsed = JSON.parse(repairedRaw);
-        return ScoreOutputSchema.parse(repairedParsed);
-    }
+    const parsed = JSON.parse(raw);
+    return ScoreOutputSchema.parse(parsed);
+  } catch {
+    const repair = await model.generateContent(buildRepairPrompt(raw));
+    const repairedRaw = repair.response.text();
+    const repairedParsed = JSON.parse(repairedRaw);
+    return ScoreOutputSchema.parse(repairedParsed);
+  }
 }

@@ -40,6 +40,7 @@ scoreInvestmentRouter.post(
       // -------------------------
       let deckBlobPath: string | null = null;
       let deckTextKey: string | null = null;
+      let deckSummary: string | null = null;
 
       if (req.file) {
         deckBlobPath = `${basePath}/raw_deck.pdf`;
@@ -51,10 +52,12 @@ scoreInvestmentRouter.post(
 
         // Extract PDF text → deck_text.json
         deckTextKey = await extractAndStoreDeckTextSafe(basePath);
-        await summarizeDeck(basePath);
-      }
+        const summaryResult = await summarizeDeck(basePath);
 
-      let deckSummary: string | undefined;
+        if(typeof summaryResult === 'string'){
+          deckSummary
+        }
+      }
 
       if (deckTextKey) {
         try {
@@ -70,7 +73,7 @@ scoreInvestmentRouter.post(
       // -------------------------
       // 3. Score the deal using Gemini
       // -------------------------
-      const score = await scoreDeal(intake);
+      const score = await scoreDeal(intake, deckSummary!);
 
       const outputKey = `${basePath}/score.json`;
 
