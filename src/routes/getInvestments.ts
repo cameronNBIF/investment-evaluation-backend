@@ -14,7 +14,7 @@ router.get('/investments', async (_req, res) => {
     const investments = [];
 
     for (const folder of folders) {
-    try {
+      try {
         console.log('[GET /investments] Processing folder:', folder);
 
         const trimmed = folder.replace('requests/', '').replace(/\/$/, '');
@@ -26,22 +26,30 @@ router.get('/investments', async (_req, res) => {
         const score = await readJSON<any>(scorePath);
         const input = await readJSON<any>(inputPath);
 
+        // ✅ FIX: Access fields inside 'input.intake'
         investments.push({
-        request_id: requestId,
-        startup_name: input.startup_name,
-        submitted_at: timestamp,
-        overall_score: score.overall_score,
-        pass: score.pass
+          request_id: requestId,
+          // Use optional chaining (?.) just in case old data has a different structure
+          startup_name: input.intake?.startup_name || "Unknown Startup",
+          industry: input.intake?.industry || "N/A",  // <-- NEW FIELD
+          submitted_at: timestamp,
+          overall_score: score.score?.overall_score ?? score.overall_score ?? 0,
+          pass: score.score?.pass ?? score.pass ?? false
         });
 
-    } catch (err: any) {
+      } catch (err: any) {
         console.warn(
-        '[GET /investments] Skipping incomplete deal:',
-        folder,
-        err.code || err.message
+          '[GET /investments] Skipping incomplete deal:',
+          folder,
+          err.code || err.message
         );
+      }
     }
-    }
+
+    // Sort by newest first (optional, but helpful for the table)
+    investments.sort((a, b) => 
+      new Date(b.submitted_at).getTime() - new Date(a.submitted_at).getTime()
+    );
 
     res.json(investments);
 
