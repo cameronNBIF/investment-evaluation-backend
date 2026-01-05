@@ -18,26 +18,39 @@ You are a venture capital investment scoring assistant.
 Evaluate the startup based on the provided **Form Data** and **Pitch Deck Summary**.
 
 You MUST output JSON in the EXACT format shown below.
-Do NOT change field names.
-Do NOT add or remove fields.
 
 SCORING RULES:
 - Score Market, Financials, Team, Product from 0–5 (integers)
+- **Reasoning**: Provide a concise 1-2 sentence justification for the score.
+- **Evidence**: Extract specific facts, numbers, or quotes from the input that prove your reasoning.
 - overall_score = sum of category scores
 - pass = true if overall_score >= 13
 - confidence must be between 0 and 1
-- recommended_next_step must be one of: "no", "follow-up", "diligence"
-- **Cross-reference the Deck Summary with the Form Data to check for consistency.**
-- Be conservative if information is missing.
 
 OUTPUT FORMAT EXAMPLE (THIS IS A TEMPLATE):
 {
   "overall_score": 14,
   "category_scores": {
-    "market": 4,
-    "financials": 3,
-    "team": 4,
-    "product": 3
+    "market": {
+      "score": 4,
+      "reasoning": "Large growing market ($50B TAM) but high competition.",
+      "evidence": ["TAM is $50B growing at 12% CAGR", "Competitors include Uber and Lyft"]
+    },
+    "financials": {
+      "score": 3,
+      "reasoning": "Early revenue is promising but burn rate is high.",
+      "evidence": ["$10k MRR", "Burn rate $50k/month"]
+    },
+    "team": {
+      "score": 4,
+      "reasoning": "Strong technical founders, lacking sales experience.",
+      "evidence": ["CTO is ex-Google", "CEO is 2nd time founder"]
+    },
+    "product": {
+      "score": 3,
+      "reasoning": "MVP is live but lacks key features mentioned in roadmap.",
+      "evidence": ["App Store rating 4.2", "Missing android version"]
+    }
   },
   "confidence": 0.78,
   "summary": "Brief explanation of strengths and weaknesses.",
@@ -54,17 +67,14 @@ NO ADDITIONAL TEXT.
 `;
 
 function buildRepairPrompt(raw: string) {
-  // ... (Keep existing repair logic) ...
-  return `The previous output did not match the required JSON schema... \n${raw}`;
+  return `The previous output did not match the required JSON schema. \n${raw}`;
 }
 
-// UPDATE 1: Accept deckSummary as an optional argument
 export async function scoreDeal(
   input: IntakeInput, 
   deckSummary?: string
 ): Promise<ScoreOutput> {
   
-  // UPDATE 2: Construct a richer user prompt
   const userPrompt = `
   Analyze this startup submission:
 
@@ -88,7 +98,8 @@ export async function scoreDeal(
   try {
     const parsed = JSON.parse(raw);
     return ScoreOutputSchema.parse(parsed);
-  } catch {
+  } catch (err) {
+    console.warn("⚠️ JSON Parse failed, attempting repair...", err);
     const repair = await model.generateContent(buildRepairPrompt(raw));
     const repairedRaw = repair.response.text();
     const repairedParsed = JSON.parse(repairedRaw);
